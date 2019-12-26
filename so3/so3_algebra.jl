@@ -28,11 +28,22 @@ end
 
 
 """
-    zero::SO3Algebra{Int64}
+    Base.:zero(in::SO3Algebra)
 
 Zero element.
 """
-zero = SO3Algebra([0; 0; 0], checks=false)
+function Base.:zero(in::SO3Algebra)
+    return typeof(in)([0; 0; 0], checks=false)
+end
+
+"""
+    Base.:zero(type::Type{SO3Algebra})
+
+Zero element of type `type`.
+"""
+function Base.:zero(type::Type{SO3Algebra})
+    return type([0; 0; 0], checks=false)
+end
 
 
 """

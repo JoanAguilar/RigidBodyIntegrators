@@ -1,7 +1,7 @@
 include("abstract_so3_group.jl")
 include("so3_algebra.jl")
 
-using LinearAlgebra: det
+using LinearAlgebra: det, I
 
 
 """
@@ -12,7 +12,6 @@ Concrete type that stores an SO3 Group element as a 3×3 rotation matrix.
 See the `AbstractSO3Gproup` type definition for more information.
 """
 struct RotationMatrix{T<:Real} <: AbstractSO3Group
-    # Rotation matrix.
     value::Array{T, 2}
 
 
@@ -38,11 +37,22 @@ end
 
 
 """
-    one::RotationMatrix{Int64}
+    Base.:one(in::RotationMatrix)
 
 Identity element.
 """
-one = RotationMatrix([1 0 0; 0 1 0; 0 0 1], checks=false)
+function Base.:one(in::RotationMatrix)
+    return typeof(in)([1 0 0; 0 1 0; 0 0 1], checks=false)
+end
+
+"""
+    Base.:one(type::Type{RotationMatrix})
+
+Identity element of type `type`.
+"""
+function Base.:one(type::Type{RotationMatrix})
+    return type([1 0 0; 0 1 0; 0 0 1], checks=false)
+end
 
 
 """
@@ -97,14 +107,14 @@ end
 
 
 """
-    log(mat::RotationMatrix)
+    log(in::RotationMatrix)
 
 Logarithmic map.
 
 Convert a `RotationMatrix` instance to a `SO3Algebra` instance.
 """
-function log(mat::RotationMatrix)
-    ax = mat.value
+function log(in::RotationMatrix)
+    mat = in.value
     θ = acos((mat[1, 1] + mat[2, 2] + mat[3, 3] - 1) / 2)
     if θ > 0
         ax_den = 2 * sin(θ)
@@ -113,23 +123,32 @@ function log(mat::RotationMatrix)
                       mat[2, 1] - mat[1, 2]]
         return SO3Algebra(θ * ax_num_vec / ax_den, checks=false)
     else
-        return SO3Algebra(zeros(eltype(mat), 3), checks=false)
+        return zero(SO3Algebra)
     end
 end
 
 
 """
-    convert(type, mat::RotationMatrix; checks::Bool=true)
+    Base.:convert(type::Type{RotationMatrix}, mat::RotationMatrix; checks::Bool=true)
 
-Convert a `mat` to the type `type`. Correctness checks are performed if `checks==true`.
-Note that if the output `out` satisfies `out<:RotationMatrix` the array information is
-copied.
+Convert `mat` to the type `type`. Correctness checks are performed if `checks==true`.
+Note that the array information is copied.
 """
-function convert(type, mat::RotationMatrix; checks::Bool=true)
-    if type<:RotationMatrix
-        return T(copy(mat.value), checks=checks)
+function Base.:convert(type::Type{RotationMatrix}, mat::RotationMatrix; checks::Bool=true)
+    return type(copy(mat.value), checks=checks)
+end
+
+
+"""
+    Base.:convert(type::Type{Array}, mat::RotationMatrix; copy::Bool=false)
+
+Convert `mat` to `type`. If `copy == true`, a copy of the array data will be returned.
+"""
+function Base.:convert(type::Type{Array}, mat::RotationMatrix; copy::Bool=false)
+    if copy
+        return type(copy(mat.value))
     else
-        return T(mat.value, checks=checks)
+        return type(mat.value)
     end
 end
 
@@ -159,7 +178,7 @@ function check(value::Array{<:Real, 2})
         msg = "Expected size (3, 3), got $size(value). Argument is not a rotation matrix."
 	return false, msg
     end
-    if value * value' ≉ LinearAlgebra.I
+    if value * value' ≉ I
         # Check that the transpose is the inverse.
         msg = "Transpose is not an inverse. Argument is not a rotation matrix."
 	return false, msg
@@ -170,21 +189,6 @@ function check(value::Array{<:Real, 2})
 	return false, msg
     end
     return true, ""
-end
-
-
-"""
-    asarray(mat::RotationMatrix; copy::Bool=false)
-
-Return an array with the rotation matrix. If `copy == true`, a copy of the array data will
-be returned.
-"""
-function asarray(mat::RotationMatrix; copy::Bool=false)
-    if copy
-        return copy(mat.value)
-    else
-        return mat.value
-    end
 end
 
 
