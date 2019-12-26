@@ -14,10 +14,6 @@ See the `AbstractSO3Gproup` type definition for more information.
 struct RotationMatrix{T<:Real} <: AbstractSO3Group
     # Rotation matrix.
     value::Array{T, 2}
-    # `true` if the rotation matrix has passed the correctness checks at construction.
-    # Note that correct matrices unchecked (or checked after construction) can have a
-    # value of `false`.
-    checked::Bool
 
 
     """
@@ -36,7 +32,7 @@ struct RotationMatrix{T<:Real} <: AbstractSO3Group
                 throw(ArgumentError(msg))
             end
         end
-	new{T}(value, checks)
+	new{T}(value)
     end
 end
 
@@ -123,7 +119,7 @@ end
 
 
 """
-    convert(T, mat::RotationMatrix; checks::Bool=true)
+    convert(T<:AbstractSO3Group, mat::RotationMatrix; checks::Bool=true)
 
 Convert a `mat` to the type `T`. Correctness checks are performed if `checks==true`. Note
 that if the output `out` satisfies `out<:RotationMatrix` the array information is copied.
@@ -183,7 +179,8 @@ end
 """
     asarray(mat::RotationMatrix; copy::Bool=false)
 
-Return an array with the rotation matrix.
+Return an array with the rotation matrix. If `copy == true`, a copy of the array data will
+be returned.
 """
 function asarray(mat::RotationMatrix; copy::Bool=false)
     if copy
