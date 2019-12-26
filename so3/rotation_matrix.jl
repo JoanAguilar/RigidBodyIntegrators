@@ -119,15 +119,21 @@ end
 
 
 """
-    convert(T<:AbstractSO3Group, mat::RotationMatrix; checks::Bool=true)
+    convert(type, mat::RotationMatrix; checks::Bool=true)
 
-Convert a `mat` to the type `T`. Correctness checks are performed if `checks==true`. Note
-that if the output `out` satisfies `out<:RotationMatrix` the array information is copied.
+Convert a `mat` to the type `type`. Correctness checks are performed if `checks==true`.
+Note that if the output `out` satisfies `out<:RotationMatrix` the array information is
+copied.
 """
-function convert(T<:AbstractSO3Group, mat::RotationMatrix; checks::Bool=true)
-    if T<:RotationMatrix
+function convert(type, mat::RotationMatrix; checks::Bool=true)
+    if type<:RotationMatrix
         return T(copy(mat.value), checks=checks)
     else
+        return T(mat.value, checks=checks)
+    end
+end
+
+
 """
     check(mat::RotationMatrix)
 

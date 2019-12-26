@@ -36,46 +36,46 @@ zero = SO3Algebra([0; 0; 0], checks=false)
 
 
 """
-    base.:+(left::SO3Algebra, right::SO3algebra)
+    Base.:+(left::SO3Algebra, right::SO3algebra)
 
 Summation.
 """
-function base.:+(left::SO3Algebra, right::SO3algebra)
+function Base.:+(left::SO3Algebra, right::SO3Algebra)
     return SO3Algebra(left.value + right.value, checks=false)
 end
 
 
 """
-    base.:-(in::SO3Algebra)
+    Base.:-(in::SO3Algebra)
 
 Negation.
 
 The output `out` satisfies `in + out = zero`.
 """
-function base.:-(in::SO3Algebra)
+function Base.:-(in::SO3Algebra)
     return SO3Algebra(-in.value, checks=false)
 end
 
 
 """
-    base.:-(left::SO3Algebra, right::SO3Algebra)
+    Base.:-(left::SO3Algebra, right::SO3Algebra)
 
 Subtraction.
 """
-function base.:-(left::SO3Algebra, right::SO3Algebra)
+function Base.:-(left::SO3Algebra, right::SO3Algebra)
     return SO3Algebra(left.value - right.value, checks=false)
 end
 
 
 """
-    exp(in::SO3Algebra, T<:AbstractSO3Group)
+    exp(in::SO3Algebra, type)
 
 Exponential map.
 
-The output `out` will satisfy `out::T`.
+The output `out` will satisfy `out::type`.
 """
-function exp(in::SO3Algebra, T<:AbstractSO3Group)
-    if T<:RotationMatrix
+function exp(in::SO3Algebra, type)
+    if type<:RotationMatrix
         θ = norm(in.value)
         if θ > 0
             ax = in.value / θ
