@@ -42,7 +42,7 @@ end
 
 Identity element.
 """
-one = RotationMatrix([1 0 0; 0 1 0; 0 0 1], checks=true)
+one = RotationMatrix([1 0 0; 0 1 0; 0 0 1], checks=false)
 
 
 """
@@ -128,11 +128,6 @@ function convert(T<:AbstractSO3Group, mat::RotationMatrix; checks::Bool=true)
     if T<:RotationMatrix
         return T(copy(mat.value), checks=checks)
     else
-        throw(ErrorException("Can't convert $typeof(mat) to $T, not implemented."))
-    end
-end
-
-
 """
     check(mat::RotationMatrix)
 
@@ -142,11 +137,7 @@ Return `true` and an empty string if `mat` is a correct representation of SO3, r
 `false` and an information message, otherwise.
 """
 function check(mat::RotationMatrix)
-    if mat.checked
-        return true, ""
-    else
-        return check(mat.value)
-    end
+    return check(mat.value)
 end
 
 
@@ -194,7 +185,7 @@ end
 """
     Base.isapprox(left::RotationMatrix, right::RotationMatrix, args...)
 
-Compare two `RotationMatrix`s.
+Compare two `RotationMatrix` instances.
 
 See `Base`'s documentation for more information about `args`.
 """
