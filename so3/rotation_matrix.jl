@@ -182,7 +182,7 @@ function check(value::Array{<:Real, 2})
     end
     if det(value) ≉ 1
         # Check that the determinant is 1.
-        msg = "Expected determinant 1, got $det(value). Argument is not a rotation matrix."
+	msg = "Expected determinant 1, got $(det(value)). Argument is not a rotation matrix."
 	return false, msg
     end
     return true, ""
