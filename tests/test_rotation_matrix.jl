@@ -1,5 +1,3 @@
-include("../so3/rotation_matrix.jl")
-
 using Random: rand, seed!
 using Test: @testset, @test, @test_throws
 

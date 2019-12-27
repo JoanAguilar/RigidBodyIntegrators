@@ -1,6 +1,3 @@
-include("abstract_so3_group.jl")
-include("so3_algebra.jl")
-
 using LinearAlgebra: det, I
 
 
