@@ -79,25 +79,22 @@ end
 
 
 """
-    exp(in::SO3Algebra, type)
+    exp(in::SO3Algebra, type::Type{RotationMatrix})
 
 Exponential map.
 
 The output `out` will satisfy `out::type`.
 """
-function exp(in::SO3Algebra, type)
-    if type<:RotationMatrix
-        θ = norm(in.value)
-        if θ > 0
-            ax = in.value / θ
-	    k = skew(ax)
-	    mat = I + sin(θ) * k + (1 - cos(θ)) * k
-	    return T(mat, checks=true)
-        else
-            return one
-        end
+function exp(in::SO3Algebra, type::Type{RotationMatrix})
+    in_arr = convert(Array, in)
+    θ = norm(in_arr)
+    if θ > 0
+        ax = in_arr / θ
+        k = skew(ax)
+        mat = I + sin(θ) * k + (1 - cos(θ)) * k
+        return type(mat, checks=true)
     else
-        throw(ErrorException("Can't instantiate exponential map to $T, not implemented."))
+        return one(type)
     end
 end
 
@@ -148,7 +145,7 @@ end
 
 
 """
-    Base.isapprox(left::RotationMatrix, right::RotationMatrix, args...)
+    Base.isapprox(left::SO3Algebra, right::SO3Algebra, args...)
 
 Compare two `SO3Algebra` instances.
 
