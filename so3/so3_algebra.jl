@@ -1,3 +1,5 @@
+using LinearAlgebra: norm
+
 """
     SO3Algebra{T<:Real}
 
@@ -86,15 +88,37 @@ Exponential map.
 The output `out` will satisfy `out::type`.
 """
 function exp(in::SO3Algebra, type::Type{RotationMatrix})
+    # NOTE: It might be possible to have a "lazy" version of this function
+    # (`exp(::SO3Algebra)`), where the output type is unspecified at runtime. This "lazy"
+    # version should allow for things like `exp(a) * b`, where the result of `exp(a)` is
+    # computed and matched with the type of `b` during the multiplication; or
+    # `exp(zero(SO3Algebra)) ≈ one(type)`, where the result of `exp` is computed and
+    # matched with the type `type` during comparison.
     in_arr = convert(Array, in)
     θ = norm(in_arr)
     if θ > 0
         ax = in_arr / θ
-        k = skew(ax)
-        mat = I + sin(θ) * k + (1 - cos(θ)) * k
+	k = [0 -ax[3] ax[2];
+             ax[3] 0 -ax[1];
+             -ax[2] ax[1] 0]
+        mat = I + sin(θ) * k + (1 - cos(θ)) * k^2
         return type(mat, checks=true)
     else
         return one(type)
+    end
+end
+
+
+"""
+    Base.:convert(type::Type{Array}, alg::SO3Algebra; copy::Bool=false)
+
+Convert `alg` to `type`. If `copy == true`, a copy of the array data will be returned.
+"""
+function Base.:convert(type::Type{Array}, alg::SO3Algebra; copy::Bool=false)
+    if copy
+        return type(copy(alg.value))
+    else
+        return type(alg.value)
     end
 end
 
@@ -130,21 +154,6 @@ end
 
 
 """
-    asarray(in::SO3Algebra; copy::Bool=false)
-
-Return an array with the 3-element vector associated with `in`. If `copy == true`, a copy
-of the vector data will be returned.
-"""
-function asarray(in::SO3Algebra; copy::Bool=false)
-    if copy
-        return copy(in.value)
-    else
-        return in.value
-    end
-end
-
-
-"""
     Base.isapprox(left::SO3Algebra, right::SO3Algebra, args...)
 
 Compare two `SO3Algebra` instances.
@@ -154,4 +163,3 @@ See `Base`'s documentation for more information about `args`.
 function Base.isapprox(left::SO3Algebra, right::SO3Algebra, args...)
     return isapprox(left.value, right.value, args...)
 end
-
