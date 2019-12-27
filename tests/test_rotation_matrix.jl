@@ -14,6 +14,7 @@ Y90DEG_ARR = [0 0 1;
 Z90DEG_ARR = [0 -1 0;
               1  0 0;
               0  0 1]
+EYE = one(RotationMatrix)
 X90DEG = RotationMatrix(X90DEG_ARR)
 Y90DEG = RotationMatrix(Y90DEG_ARR)
 Z90DEG = RotationMatrix(Z90DEG_ARR)
@@ -38,14 +39,13 @@ Z90DEG = RotationMatrix(Z90DEG_ARR)
 end
 
 @testset "RotationMatrix Identity" begin
-    eye = one(RotationMatrix)
-    @test eye * eye ≈ eye
-    @test eye * X90DEG ≈ X90DEG
-    @test eye * Y90DEG ≈ Y90DEG
-    @test eye * Z90DEG ≈ Z90DEG
-    @test X90DEG * eye ≈ X90DEG
-    @test Y90DEG * eye ≈ Y90DEG
-    @test Z90DEG * eye ≈ Z90DEG
+    @test EYE * EYE ≈ EYE
+    @test EYE * X90DEG ≈ X90DEG
+    @test EYE * Y90DEG ≈ Y90DEG
+    @test EYE * Z90DEG ≈ Z90DEG
+    @test X90DEG * EYE ≈ X90DEG
+    @test Y90DEG * EYE ≈ Y90DEG
+    @test Z90DEG * EYE ≈ Z90DEG
 end
 
 @testset "RotationMatrix Multiplication" begin
@@ -79,18 +79,16 @@ end
 end
 
 @testset "RotationMatrix Inverse" begin
-    eye = one(RotationMatrix)
-    @test inv(eye) ≈ eye
-    @test eye * inv(eye) ≈ eye
-    @test inv(eye) * eye ≈ eye
+    @test inv(EYE) ≈ EYE
+    @test EYE * inv(EYE) ≈ EYE
+    @test inv(EYE) * EYE ≈ EYE
 
-    @test inv(X90DEG) * X90DEG ≈ eye 
-    @test inv(Y90DEG) * Y90DEG ≈ eye 
-    @test inv(Z90DEG) * Z90DEG ≈ eye 
-    @test X90DEG * inv(X90DEG) ≈ eye 
-    @test Y90DEG * inv(Y90DEG) ≈ eye 
-    @test Z90DEG * inv(Z90DEG) ≈ eye 
-
+    @test inv(X90DEG) * X90DEG ≈ EYE
+    @test inv(Y90DEG) * Y90DEG ≈ EYE
+    @test inv(Z90DEG) * Z90DEG ≈ EYE
+    @test X90DEG * inv(X90DEG) ≈ EYE
+    @test Y90DEG * inv(Y90DEG) ≈ EYE
+    @test Z90DEG * inv(Z90DEG) ≈ EYE
 end
 
 @testset "RotationMatrix Logarithmic Map" begin
@@ -101,9 +99,7 @@ end
 end
 
 @testset "RotationMatrix Conversion" begin
-    eye = one(RotationMatrix)
-
-    @test eye ≈ convert(RotationMatrix, eye)
+    @test EYE ≈ convert(RotationMatrix, EYE)
     @test X90DEG ≈ convert(RotationMatrix, X90DEG)
     @test Y90DEG ≈ convert(RotationMatrix, Y90DEG)
     @test Z90DEG ≈ convert(RotationMatrix, Z90DEG)
@@ -112,21 +108,17 @@ end
     @test_throws ArgumentError convert(RotationMatrix, test_mat, checks=true)
     @test test_mat ≈ convert(RotationMatrix, test_mat, checks=false)
 
-    @test convert(Array, eye) ≈ eye.value
+    @test convert(Array, EYE) ≈ EYE.value
 end
 
 @testset "RotationMatrix Correctness Checks" begin
-    eye = one(RotationMatrix)
-
-    @test check(eye)[1]
-    @test check(convert(Array, eye))[1]
+    @test check(EYE)[1]
+    @test check(convert(Array, EYE))[1]
     @test !check(RotationMatrix(rand(3, 3), checks=false))[1]
     @test !check(rand(3, 3))[1]
 end
 
 @testset "RotationMatrix Approximation Check" begin
-    eye = one(RotationMatrix)
-
-    @test eye ≈ eye
-    @test eye ≉ RotationMatrix(rand(3, 3), checks=false)
+    @test EYE ≈ EYE
+    @test EYE ≉ RotationMatrix(rand(3, 3), checks=false)
 end
