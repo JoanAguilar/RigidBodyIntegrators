@@ -6,24 +6,24 @@ using LinearAlgebra: det, I
 
 Concrete type that stores an SO3 Group element as a 3×3 rotation matrix.
 
-See the `AbstractSO3Gproup` type definition for more information.
+See the `AbstractSO3Group` type definition for more information.
 """
 struct RotationMatrix{T<:Real} <: AbstractSO3Group
     value::Array{T, 2}
 
 
     """
-        RotationMatrix(value::Array{T, 2}; checks::Bool=true) where {T<:Real}
+        RotationMatrix(value::Array{T, 2}; checks::Bool=true) where T<:Real
 
     Construct a `RotationMatrix` instance from an array.
 
     `value` is an array with the 3×3 rotation matrix; if `checks` is set to `true`,
     correctness checks are performed during construction.
     """
-    function RotationMatrix(value::Array{T, 2}; checks::Bool=true) where {T<:Real}
+    function RotationMatrix(value::Array{T, 2}; checks::Bool=true) where T<:Real
         if checks
             # Perform correctness checks.
-            checks_pass, msg = check(value) 
+            checks_pass, msg = check_as(value, RotationMatrix)
 	    if !checks_pass
                 throw(ArgumentError(msg))
             end
@@ -38,8 +38,8 @@ end
 
 Identity element.
 """
-function Base.:one(in::RotationMatrix)
-    return typeof(in)([1 0 0; 0 1 0; 0 0 1], checks=false)
+function Base.:one(in::T) where T<:RotationMatrix
+    return T([1 0 0; 0 1 0; 0 0 1], checks=false)
 end
 
 """
@@ -95,8 +95,8 @@ end
 
 Compute the inverse.
 
-The output `out::RotationMatrix` satisfies `out * mat ≈ I` and `mat * out ≈ I` to a
-certain degree of accuracy.
+The output `out::RotationMatrix` satisfies `out * mat ≈ one(mat)` and
+`mat * out ≈ one(mat)` to a certain degree of accuracy.
 """
 function Base.inv(mat::RotationMatrix)
     return RotationMatrix(convert(Array, mat.value'), checks=false)
@@ -129,10 +129,9 @@ end
     Base.:convert(type::Type{RotationMatrix}, mat::RotationMatrix; checks::Bool=true)
 
 Convert `mat` to the type `type`. Correctness checks are performed if `checks==true`.
-Note that the array information is copied.
 """
 function Base.:convert(type::Type{RotationMatrix}, mat::RotationMatrix; checks::Bool=true)
-    return type(copy(mat.value), checks=checks)
+    return type(mat.value, checks=checks)
 end
 
 
@@ -159,17 +158,17 @@ Return `true` and an empty string if `mat` is a correct representation of SO3, r
 `false` and an information message, otherwise.
 """
 function check(mat::RotationMatrix)
-    return check(mat.value)
+    return check_as(mat.value, typeof(mat))
 end
 
 
 """
-    check(value::Array{<:Real, 2})
+    check_as(value::Array{<:Real, 2}, type::Type{RotationMatrix})
 
 Check if `value` is a valid rotation matrix. See `check(mat::RotationMatrix)` for more
 information on the return types.
 """
-function check(value::Array{<:Real, 2})
+function check_as(value::Array{<:Real, 2}, type::Type{<:RotationMatrix})
     if size(value) ≠ (3, 3)
         # Check that the given matrix is 3×3.
         msg = "Expected size (3, 3), got $size(value). Argument is not a rotation matrix."
@@ -196,6 +195,6 @@ Compare two `RotationMatrix` instances.
 
 See `Base`'s documentation for more information about `args`.
 """
-function Base.isapprox(left::RotationMatrix, right::RotationMatrix, args...)
+function Base.:isapprox(left::RotationMatrix, right::RotationMatrix, args...)
     return isapprox(left.value, right.value, args...)
 end
