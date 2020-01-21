@@ -8,7 +8,7 @@ ALG_X = SO3Algebra([1; 0; 0])
 ALG_Y = SO3Algebra([0; 1; 0])
 ALG_Z = SO3Algebra([0; 0; 1])
 
-@testset "SO3Algebra Construction" begin
+@testset "Construction" begin
     # Test construction, with vectors that are not 3-dimensional but with checks turned off.
     @test isa(SO3Algebra(rand(2), checks=false), SO3Algebra)
     @test isa(SO3Algebra(rand(4), checks=false), SO3Algebra)
@@ -24,7 +24,7 @@ ALG_Z = SO3Algebra([0; 0; 1])
     @test isa(SO3Algebra(rand(3)), SO3Algebra)
 end
 
-@testset "SO3Algebra Zero" begin
+@testset "Zero" begin
     test_alg = SO3Algebra(rand(3))
 
     @test OH + OH ≈ OH
@@ -32,7 +32,7 @@ end
     @test test_alg + OH ≈ test_alg
 end
 
-@testset "SO3Algebra Summation" begin
+@testset "Summation" begin
     @test ALG_X + ALG_X ≈ SO3Algebra([2; 0; 0])
     @test ALG_X + ALG_Y ≈ SO3Algebra([1; 1; 0])
     @test ALG_X + ALG_Z ≈ SO3Algebra([1; 0; 1])
@@ -43,7 +43,7 @@ end
     @test ALG_X + ALG_Y + ALG_Z ≈ SO3Algebra([1; 1; 1])
 end
 
-@testset "SO3Algebra Negation" begin
+@testset "Negation" begin
     @test -OH ≈ OH
     @test OH + (-OH) ≈ OH
     @test -OH + OH ≈ OH
@@ -56,7 +56,7 @@ end
     @test ALG_Z + (-ALG_Z) ≈ OH
 end
 
-@testset "SO3Algebra Subtraction" begin
+@testset "Subtraction" begin
     @test ALG_X - ALG_X ≈ OH
     @test ALG_X - ALG_Y ≈ SO3Algebra([1; -1; 0])
     @test ALG_X - ALG_Z ≈ SO3Algebra([1; 0; -1])
@@ -67,7 +67,7 @@ end
     @test ALG_X - ALG_Y - ALG_Z ≈ SO3Algebra([1; -1; -1])
 end
 
-@testset "SO3Algebra Logarithmic Map" begin
+@testset "Logarithmic Map" begin
     @test exp(OH, RotationMatrix) ≈ one(RotationMatrix)
     @test exp(SO3Algebra([0.5 * π; 0; 0]), RotationMatrix) ≈
         RotationMatrix([1 0 0; 0 0 -1; 0 1 0])
@@ -77,18 +77,18 @@ end
         RotationMatrix([0 -1 0; 1 0 0; 0 0 1])
 end
 
-@testset "SO3Algebra Conversion" begin
+@testset "Conversion" begin
     @test convert(Array, OH) ≈ OH.value
 end
 
-@testset "SO3Algebra Correctness Checks" begin
+@testset "Correctness Checks" begin
     @test check(OH)[1]
-    @test check(convert(Array, OH))[1]
+    @test check_as(convert(Array, OH), SO3Algebra)[1]
     @test !check(SO3Algebra(rand(2), checks=false))[1]
-    @test !check(rand(2))[1]
+    @test !check_as(rand(2), SO3Algebra)[1]
 end
 
-@testset "SO3Algebra Approximation Check" begin
+@testset "Approximation Check" begin
     @test OH ≈ OH 
     @test OH ≉ SO3Algebra(rand(3))
 end
