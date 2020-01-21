@@ -4,10 +4,10 @@ AbstractSO3Group
 Abstract type representing SO3 elements.
 
 # Implementation
-Subtypes of of this type (AbstractSO3Group) are implementations of representations of SO3
+Subtypes of of this type (`AbstractSO3Group`) are implementations of representations of SO3
 group elements (referred as `<Implementation>`). The expectation is for them to implement:
- - `I::<Implementation>`: Identity element. Satisfies `I * elem == elem`,
-    `elem * I == elem`, for any `elem::<Implementation>`.
+ - `Base.:one`: Identity element. Satisfies `I * elem == elem`, `elem * I == elem`, for
+   any `elem::<Implementation>`.
  - `Base.:*(left::<Implementation>, right::<Implementation>)`: Multiplication between
    elements. The result is an element representing the application of `right` and then
    `left`.
@@ -17,14 +17,14 @@ group elements (referred as `<Implementation>`). The expectation is for them to 
  - `Base.:*(elem::<Implementation>, mat::Array{<:Real, 2})`: Multiplication between an
    element and a 3×n matrix. The result is a 3×n matrix obtained by applying `elem` to
    each of the columns of `mat`.
- - `inv(elem::<Implementation>)`: Element inverse. `inv` satisfies `elem * inv(elem)` or
-   `inv(elem) * elem`. Returns the identity element `I`.
+ - `Base.:inv(elem::<Implementation>)`: Element inverse. `inv` satisfies that
+   `elem * inv(elem)` or `inv(elem) * elem` returns the identity element `one`.
  - `log(elem::<Implementation>)`: Logarithmic map. The result is an instance of
-   SO3Algebra equivalent to `elem`.
- - `convert(impl, elem::<Implementation>)`: Convert the element `elem` to type `impl`.
-   `impl` must be an existing SO3 Group implementation.
+   `SO3Algebra` equivalent to `elem`.
+ - `Base.:convert(impl::Type{AbstractSO3Group}, elem::<Implementation>)`: Convert the
+   element `elem` to type `impl`.
  - `check(elem::<Implementation>)`: Check for correctness. Returns `true` and an empty
    string if `elem` is a correct representation of SO3. Returns `false` and an
    information message, otherwise.
 """
-abstract type AbstractSO3Group end
+abstract type AbstractSO3Group <: AbstractLieGroup end
