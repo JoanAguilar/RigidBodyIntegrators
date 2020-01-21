@@ -5,22 +5,22 @@ using LinearAlgebra: norm
 
 Concrete type that stores an SO3 Algebra element as 3-element vector.
 """
-struct SO3Algebra{T<:Real}
+struct SO3Algebra{T<:Real} <: AbstractLieAlgebra
     value::Array{T, 1}
 
     """
-        SO3Algebra(value::Array{T, 1}; checks::Bool=true) where {T<:Real}
+        SO3Algebra(value::Array{T, 1}; checks::Bool=true) where T<:Real
 
     Construct a `SO3Algebra` instance from a vector (`value`).
 
     If `checks` is set to `true`, correctness checks are performed during
     construction.
     """
-    function SO3Algebra(value::Array{T, 1}; checks::Bool=true) where {T<:Real}
+    function SO3Algebra(value::Array{T, 1}; checks::Bool=true) where T<:Real
         if checks
             # Perform correctness checks.
-            checks_pass, msg = check(value) 
-	    if !checks_pass
+            checks_pass, msg = check_as(value, SO3Algebra)
+            if !checks_pass
                 throw(ArgumentError(msg))
             end
         end
@@ -34,8 +34,8 @@ end
 
 Zero element.
 """
-function Base.:zero(in::SO3Algebra)
-    return typeof(in)([0; 0; 0], checks=false)
+function Base.:zero(in::T) where T<:SO3Algebra
+    return T([0; 0; 0], checks=false)
 end
 
 """
@@ -132,21 +132,21 @@ Return `true` and an empty string if `in` is a correct representation, returns `
 and an information message, otherwise.
 """
 function check(in::SO3Algebra)
-    return check(in.value)
+    return check_as(in.value, typeof(in))
 end
 
 
 """
-    check(value::Array{<:Real, 1})
+    check_as(value::Array{<:Real, 1}, type::Type{SO3Algebra})
 
 Check if `value` is a 3-element vector. See `check(in::SO3Algebra)` for more information
 on return types.
 """
-function check(value::Array{<:Real, 1})
+function check_as(value::Array{<:Real, 1}, type::Type{<:SO3Algebra})
     if size(value) ≠ (3,)
         msg = "Expected size (3,) got $size(value). Argument can't be used as a " *
-	"representation of an SO3 algebra element."
-	return false, msg
+        "representation of an SO3 algebra element."
+        return false, msg
     else
         return true, ""
     end
